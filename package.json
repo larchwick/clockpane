@@ -1,0 +1,33 @@
+{
+  "name": "clockpane",
+  "version": "0.1.0",
+  "private": true,
+  "description": "World clocks and a time zone converter in the toolbar. Works offline, no host permissions.",
+  "author": "Larchwick",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "24.14.0",
+    "npm": "11.9.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs && node scripts/check-dist.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint . && npm run lint:firefox",
+    "lint:firefox": "web-ext lint --source-dir dist/firefox --self-hosted=false",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "check": "npm run typecheck && npm run build && npm run lint && npm test && npm run e2e",
+    "package": "npm run build && web-ext build --source-dir dist/firefox --artifacts-dir dist/zips --filename clockpane-firefox-{version}.zip --overwrite-dest && web-ext build --source-dir dist/edge --artifacts-dir dist/zips --filename clockpane-edge-{version}.zip --overwrite-dest"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
+    "jsdom": "29.1.1",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5",
+    "web-ext": "10.8.0"
+  }
+}

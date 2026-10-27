@@ -1,0 +1,40 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1b2526;
+  --muted: #5b6b6c;
+  --line: #dfe6e6;
+  --accent: #0f5c5c;
+  --warm: #e0922f;
+  font: 13px/1.35 system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #162021; --fg: #e8efef; --muted: #9db0b1; --line: #2c3b3c; --accent: #5fb3b3; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 10px 12px; width: 360px; background: var(--bg); color: var(--fg); }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+h1 { font-size: 15px; margin: 0; color: var(--accent); }
+.toggle { color: var(--muted); }
+section, form { border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+.row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.row label { color: var(--muted); }
+select, input, button { font: inherit; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; }
+select { flex: 1; min-width: 0; }
+button { cursor: pointer; }
+button:hover, button:focus-visible { border-color: var(--accent); }
+.hint { margin: 2px 0 0; color: var(--muted); font-size: 12px; min-height: 1em; }
+.hint.converting { color: var(--warm); }
+ul { list-style: none; margin: 0 0 8px; padding: 0; }
+.clock { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 6px 2px; border-bottom: 1px solid var(--line); }
+.who { display: flex; flex-direction: column; min-width: 0; }
+.label { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zone, .day { color: var(--muted); font-size: 12px; }
+.when { text-align: right; display: flex; flex-direction: column; }
+.time { font-size: 18px; font-variant-numeric: tabular-nums; }
+.tools { grid-column: 1 / -1; display: flex; gap: 4px; opacity: 0.55; }
+.clock:hover .tools, .clock:focus-within .tools { opacity: 1; }
+.tools button { padding: 0 6px; font-size: 11px; }
+form { display: flex; flex-wrap: wrap; gap: 6px; }
+#add-zone { flex: 2 1 160px; }
+#add-label { flex: 1 1 100px; }

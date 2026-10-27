@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clockpane</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Clockpane</h1>
+    <label class="toggle"><input type="checkbox" id="hour12"> 12-hour</label>
+  </header>
+
+  <section id="convert" aria-label="Convert a time">
+    <div class="row">
+      <label for="conv-zone">Time in</label>
+      <select id="conv-zone"></select>
+    </div>
+    <div class="row">
+      <input type="date" id="conv-date" aria-label="Date">
+      <input type="time" id="conv-time" aria-label="Time">
+      <button type="button" id="conv-now">Now</button>
+    </div>
+    <p id="mode" class="hint">Showing the current time.</p>
+  </section>
+
+  <ul id="clocks" aria-label="Clocks"></ul>
+
+  <form id="add-form" autocomplete="off">
+    <input type="text" id="add-zone" list="zone-list" placeholder="Add a city or time zone" aria-label="City or time zone">
+    <datalist id="zone-list"></datalist>
+    <input type="text" id="add-label" placeholder="Label (optional)" maxlength="40" aria-label="Label">
+    <button type="submit" id="add-btn">Add</button>
+  </form>
+  <p id="message" class="hint" role="status"></p>
+
+  <template id="clock-row">
+    <li class="clock">
+      <div class="who">
+        <span class="label"></span>
+        <span class="zone"></span>
+      </div>
+      <div class="when">
+        <span class="time"></span>
+        <span class="day"></span>
+      </div>
+      <div class="tools">
+        <button type="button" class="up" aria-label="Move up">&#9650;</button>
+        <button type="button" class="down" aria-label="Move down">&#9660;</button>
+        <button type="button" class="rename" aria-label="Rename">&#9998;</button>
+        <button type="button" class="remove" aria-label="Remove">&#10005;</button>
+      </div>
+    </li>
+  </template>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
