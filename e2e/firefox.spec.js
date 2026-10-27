@@ -2,7 +2,9 @@
 // Debugging Protocol (as web-ext run does), opens the popup page in a tab, and drives it.
 import { resolve } from 'node:path';
 import { expect, firefox, test } from '@playwright/test';
-import { journeyAfterReload, journeyBeforeReload } from './journey.js';
+import { journeyAfterReload, journeyBeforeReload, journeyPro } from './journey.js';
+import { SEEDED_LICENSE } from './proScenario.js';
+import { LICENSE_STORAGE_KEY } from '../extension/pro/storedLicense.js';
 import { Rdp } from './rdp.js';
 
 const ADDON_ID = 'clockpane@larchwick';
@@ -53,6 +55,13 @@ test('Clockpane popup works in Firefox', async () => {
     console = await rdp.consoleFor(POPUP);
     const b = await rdp.evaluate(console, `(${journeyAfterReload.toString()})()`);
     expect(b).toEqual({ rows: 5, firstLabel: 'Team Tokyo', hour12: true, addEnabledAfterRemove: true, network: [] });
+
+    const args = [LICENSE_STORAGE_KEY, SEEDED_LICENSE].map((v) => JSON.stringify(v)).join(', ');
+    const c = await rdp.evaluate(console, `(${journeyPro.toString()})(${args})`);
+    expect(c).toEqual({
+      tier: 'Pro', rows: 7, addEnabled: true, plannerRows: 8, plannerVisible: true, badgeOk: true,
+      freeRows: 5, hiddenNote: '2 more saved clocks are kept and come back with Pro.', badgeOff: true, network: [],
+    });
   } finally {
     rdp.close();
     await browser.close();

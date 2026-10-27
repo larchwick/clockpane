@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["extension/**/*.js", "pro/**/*.js", "scripts/**/*.mjs"]
+  "include": ["extension/**/*.js", "scripts/**/*.mjs"]
 }

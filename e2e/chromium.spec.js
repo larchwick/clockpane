@@ -4,6 +4,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { chromium, test } from '@playwright/test';
+import { runProScenario } from './proScenario.js';
 import { runScenario } from './scenario.js';
 
 const extPath = resolve('dist/edge');
@@ -26,6 +27,23 @@ test('Clockpane popup works in Chromium (Edge build)', async () => {
   try {
     const page = await context.newPage();
     await runScenario(page, `chrome-extension://${unpackedId(extPath)}/popup.html`);
+  } finally {
+    await context.close();
+    await rm(profile, { recursive: true, force: true });
+  }
+});
+
+test('Clockpane Pro works in Chromium (Edge build)', async () => {
+  const profile = await mkdtemp(join(tmpdir(), 'clockpane-chromium-pro-'));
+  const context = await chromium.launchPersistentContext(profile, {
+    channel: 'chromium',
+    headless: true,
+    locale: 'en-US',
+    acceptDownloads: true,
+    args: [`--disable-extensions-except=${extPath}`, `--load-extension=${extPath}`],
+  });
+  try {
+    await runProScenario(context, `chrome-extension://${unpackedId(extPath)}`);
   } finally {
     await context.close();
     await rm(profile, { recursive: true, force: true });

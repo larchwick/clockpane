@@ -1,28 +1,68 @@
 import { describe, expect, it, vi } from 'vitest';
-import { checkLicense, recheckAction } from '../pro/activation.js';
-import { hasConsent, consentRecord } from '../pro/consent.js';
-import { buildVerifyRequest, GUMROAD_PRODUCT_ID, GUMROAD_VERIFY_URL, parseVerifyResponse } from '../pro/gumroad.js';
-import { FreeLicense, PRO_ENABLED } from '../pro/license.js';
-import { parseStoredLicense, serializeStoredLicense, tierFromStored } from '../pro/storedLicense.js';
+import { checkLicense, recheckAction } from '../extension/pro/activation.js';
+import { CONSENT_TEXT, hasConsent, consentRecord } from '../extension/pro/consent.js';
+import {
+  buildVerifyRequest, GUMROAD_ORIGIN, GUMROAD_PRODUCT_ID, GUMROAD_PRODUCT_URL, GUMROAD_VERIFY_URL, MAX_MACHINES, parseVerifyResponse,
+} from '../extension/pro/gumroad.js';
+import { keyHash, maskKey, permissionRequest, readLicense, readTier } from '../extension/pro/license.js';
+import { LICENSE_STORAGE_KEY, parseStoredLicense, serializeStoredLicense, tierFromStored } from '../extension/pro/storedLicense.js';
 
 const PID = 'test-product-id';
 const now = () => new Date('2026-10-27T20:00:00Z');
 const ok = (purchase = {}, uses = 1) => ({ success: true, uses, purchase: { product_id: PID, sale_id: 's1', refunded: false, disputed: false, chargebacked: false, ...purchase } });
 
-describe('Pro module is off', () => {
-  it('has no product id, is disabled and reports Free', () => {
-    expect(GUMROAD_PRODUCT_ID).toBeNull();
-    expect(PRO_ENABLED).toBe(false);
-    expect(FreeLicense.isPro()).toBe(false);
-    expect(buildVerifyRequest('KEY', 'activation')).toBeUndefined();
-    expect(tierFromStored(serializeStoredLicense({ productId: PID, licenseKey: 'k', saleId: '', uses: 1, mode: 'activation', checkedAt: now().toISOString() }), GUMROAD_PRODUCT_ID)).toBe('free');
+describe('Pro configuration', () => {
+  it('points at the Clockpane Pro product and the verify endpoint only', () => {
+    expect(GUMROAD_PRODUCT_ID).toBe('hr1yPpDQFFwAmvVhzXReuw==');
+    expect(GUMROAD_PRODUCT_URL).toBe('https://larchwick.gumroad.com/l/sysaii');
+    expect(GUMROAD_VERIFY_URL).toBe('https://api.gumroad.com/v2/licenses/verify');
+    expect(GUMROAD_ORIGIN).toBe('https://api.gumroad.com/*');
+    expect(MAX_MACHINES).toBe(3);
   });
-  it('sends nothing while not configured or without consent', async () => {
+  it('form encodes the product id with its trailing equals signs', () => {
+    const r = /** @type {any} */ (buildVerifyRequest('KEY', 'activation'));
+    expect(r.body).toBe('product_id=hr1yPpDQFFwAmvVhzXReuw%3D%3D&license_key=KEY&increment_uses_count=true');
+  });
+  it('sends nothing without consent, without a key or without a product id', async () => {
     const transport = vi.fn();
-    expect((await checkLicense({ rawKey: 'KEY', mode: 'activation', consented: true, transport, now })).reason).toBe('not-configured');
-    expect((await checkLicense({ rawKey: 'KEY', mode: 'activation', consented: false, transport, now, productId: PID })).reason).toBe('not-configured');
-    expect((await checkLicense({ rawKey: '  ', mode: 'activation', consented: true, transport, now, productId: PID })).reason).toBe('invalid-key');
+    expect((await checkLicense({ rawKey: 'KEY', mode: 'activation', consented: false, transport, now })).reason).toBe('not-configured');
+    expect((await checkLicense({ rawKey: '  ', mode: 'activation', consented: true, transport, now })).reason).toBe('invalid-key');
+    expect((await checkLicense({ rawKey: 'KEY', mode: 'activation', consented: true, transport, now, productId: null })).reason).toBe('not-configured');
     expect(transport).not.toHaveBeenCalled();
+  });
+  it('makes exactly one call after consent', async () => {
+    const transport = vi.fn(async () => ({ status: 200, body: ok({ product_id: GUMROAD_PRODUCT_ID }) }));
+    const r = await checkLicense({ rawKey: 'KEY', mode: 'activation', consented: true, transport, now });
+    expect(r.valid).toBe(true);
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
+  it('consent text names what is sent and where', () => {
+    const text = CONSENT_TEXT.join(' ');
+    expect(text).toContain('license key');
+    expect(text).toContain('product id');
+    expect(text).toContain('api.gumroad.com');
+    expect(text).toContain('nothing else');
+  });
+  it('asks Firefox for the authenticationInfo data collection permission', () => {
+    expect(permissionRequest(true)).toEqual({ origins: [GUMROAD_ORIGIN], data_collection: ['authenticationInfo'] });
+    expect(permissionRequest(false)).toEqual({ origins: [GUMROAD_ORIGIN] });
+  });
+  it('reads the tier from storage without any network', async () => {
+    /** @type {Record<string, unknown>} */
+    const data = {};
+    const area = { get: async (/** @type {string} */ k) => (k in data ? { [k]: data[k] } : {}), set: async () => {} };
+    expect(await readTier(area)).toBe('free');
+    const l = { productId: GUMROAD_PRODUCT_ID, licenseKey: 'ABCD-1234', saleId: 's', uses: 1, mode: /** @type {const} */ ('activation'), checkedAt: now().toISOString() };
+    data[LICENSE_STORAGE_KEY] = serializeStoredLicense(l);
+    expect(await readTier(area)).toBe('pro');
+    expect(await readLicense(area)).toEqual(l);
+    data[LICENSE_STORAGE_KEY] = serializeStoredLicense({ ...l, productId: 'other' });
+    expect(await readTier(area)).toBe('free');
+  });
+  it('hashes and masks keys', async () => {
+    expect(await keyHash(' abc ')).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+    expect(maskKey('AAAA-BBBB-CCCC-1234')).toBe('****1234');
+    expect(maskKey('abc')).toBe('****');
   });
 });
 

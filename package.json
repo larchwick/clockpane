@@ -1,8 +1,8 @@
 {
   "name": "clockpane",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "World clocks and a time zone converter in the toolbar. Works offline, no host permissions.",
+  "description": "World clocks and a time zone converter in the toolbar. Works offline. Optional paid Pro with a meeting planner, clock sets and more.",
   "author": "Larchwick",
   "license": "MIT",
   "type": "module",

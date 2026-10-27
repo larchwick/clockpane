@@ -10,7 +10,7 @@ describe('manifestFor', () => {
     expect(m.browser_specific_settings.gecko).toEqual({
       id: 'clockpane@larchwick',
       strict_min_version: '140.0',
-      data_collection_permissions: { required: ['none'] },
+      data_collection_permissions: { required: ['none'], optional: ['authenticationInfo'] },
     });
     expect(m.browser_specific_settings.gecko_android.strict_min_version).toBe('142.0');
   });
@@ -19,14 +19,19 @@ describe('manifestFor', () => {
     expect(m.browser_specific_settings).toBeUndefined();
     expect(m.manifest_version).toBe(3);
   });
-  it('asks for storage only, with no hosts or content scripts', () => {
+  it('asks for storage and alarms, Gumroad only as an optional host, no content scripts', () => {
     for (const t of /** @type {const} */ (['firefox', 'edge'])) {
       const m = manifestFor(base, t);
-      expect(m.permissions).toEqual(['storage']);
+      expect(m.version).toBe('0.2.0');
+      expect(m.permissions).toEqual(['storage', 'alarms']);
+      expect(m.optional_host_permissions).toEqual(['https://api.gumroad.com/*']);
       expect(m.host_permissions).toBeUndefined();
       expect(m.content_scripts).toBeUndefined();
-      expect(m.background).toBeUndefined();
+      expect(m.web_accessible_resources).toBeUndefined();
+      expect(m.options_ui).toEqual({ page: 'options.html', open_in_tab: true });
     }
+    expect(manifestFor(base, 'firefox').background).toEqual({ scripts: ['background.js'], type: 'module' });
+    expect(manifestFor(base, 'edge').background).toEqual({ service_worker: 'background.js', type: 'module' });
   });
   it('maps a background script to each browser key', () => {
     const withBg = { ...base, background: { script: 'bg.js' } };

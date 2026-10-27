@@ -1,5 +1,4 @@
 // Builds dist/firefox and dist/edge from extension/. No bundler: files are copied as is.
-// The Pro license module in pro/ is never copied into a build.
 
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';

@@ -1,7 +1,6 @@
 /**
- * The only network code in Clockpane, and it is not part of any build yet.
- * Copied from Extension Pro src/pro/transport.ts (ea8127dca553cb73ca981b7f05909e148034051f):
- * one form encoded POST to the Gumroad verify endpoint, redirects refused, 15 s timeout,
+ * The only network code in Clockpane. It runs only from the options page after consent.
+ * One form encoded POST to the Gumroad verify endpoint, redirects refused, 15 s timeout,
  * and a URL guard. ESLint allows fetch in this file only.
  */
 

@@ -28,7 +28,9 @@ export function manifestFor(base, target) {
       gecko: {
         id: GECKO_ID,
         strict_min_version: GECKO_MIN,
-        data_collection_permissions: { required: ['none'] },
+        // Nothing is collected without consent. The license key goes to Gumroad only after the
+        // user opts in at activation, which also asks for this optional category.
+        data_collection_permissions: { required: ['none'], optional: ['authenticationInfo'] },
       },
       gecko_android: { strict_min_version: GECKO_ANDROID_MIN },
     };

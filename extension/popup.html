@@ -8,9 +8,17 @@
 </head>
 <body>
   <header>
-    <h1>Clockpane</h1>
-    <label class="toggle"><input type="checkbox" id="hour12"> 12-hour</label>
+    <h1>Clockpane <span id="tier" class="tier"></span></h1>
+    <div class="head-tools">
+      <label class="toggle"><input type="checkbox" id="hour12"> 12-hour</label>
+      <button type="button" id="open-options" aria-label="Settings and Pro" title="Settings and Pro">&#9881;</button>
+    </div>
   </header>
+
+  <div id="set-row" class="row" hidden>
+    <label for="set-select">Set</label>
+    <select id="set-select"></select>
+  </div>
 
   <section id="convert" aria-label="Convert a time">
     <div class="row">
@@ -23,6 +31,19 @@
       <button type="button" id="conv-now">Now</button>
     </div>
     <p id="mode" class="hint">Showing the current time.</p>
+    <button type="button" id="planner-toggle" aria-expanded="false" aria-controls="planner">Meeting planner</button>
+  </section>
+
+  <section id="planner" aria-label="Meeting planner" hidden>
+    <p id="planner-title" class="hint"></p>
+    <div id="planner-grid" role="table" aria-label="Working hours by hour of the day"></div>
+    <p id="planner-summary"></p>
+    <p class="hint">Green: working hours. Light: awake. Dark: night. Click an hour to show it in the clocks. Set working hours in Settings.</p>
+  </section>
+
+  <section id="pro-pitch" aria-label="Clockpane Pro" hidden>
+    <p id="pro-pitch-text"></p>
+    <button type="button" id="pro-pitch-open">See Pro</button>
   </section>
 
   <ul id="clocks" aria-label="Clocks"></ul>
@@ -34,6 +55,7 @@
     <button type="submit" id="add-btn">Add</button>
   </form>
   <p id="message" class="hint" role="status"></p>
+  <p id="hidden-note" class="hint" hidden></p>
 
   <template id="clock-row">
     <li class="clock">

@@ -91,3 +91,66 @@ export async function journeyAfterReload() {
   seen.network = performance.getEntriesByType('resource').map((e) => e.name).filter((u) => !u.startsWith('moz-extension:'));
   return seen;
 }
+
+/**
+ * Part 3, Pro: a license record is written to storage.local (what a successful check
+ * stores), then more than five clocks, the planner and the toolbar badge are used, and
+ * removing the license brings back the free view without losing data.
+ * @param {string} licenseKey storage key for the license
+ * @param {string} licenseValue serialized license record
+ */
+export async function journeyPro(licenseKey, licenseValue) {
+  const api = /** @type {any} */ (globalThis).browser;
+  const $ = (s) => /** @type {any} */ (document.querySelector(s));
+  const rows = () => [...document.querySelectorAll('#clocks li.clock')];
+  const until = async (pred, what) => {
+    for (let i = 0; i < 400; i++) {
+      if (await pred()) return;
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    throw new Error(`timed out waiting for ${what}`);
+  };
+  const set = (el, v) => {
+    el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const seen = {};
+  await until(() => document.body.dataset.ready === 'true', 'ready');
+  await api.storage.local.set({ [licenseKey]: licenseValue });
+  await until(() => $('#tier').textContent === 'Pro', 'pro tier');
+  seen.tier = $('#tier').textContent;
+  for (const z of ['London', 'Sydney', 'Bucharest']) {
+    const n = rows().length;
+    set($('#add-zone'), z);
+    set($('#add-label'), '');
+    $('#add-btn').click();
+    await until(() => rows().length === n + 1, `add ${z}`);
+  }
+  seen.rows = rows().length;
+  seen.addEnabled = !$('#add-btn').disabled;
+
+  $('#planner-toggle').click();
+  set($('#conv-zone'), 'UTC');
+  set($('#conv-date'), '2026-11-03');
+  set($('#conv-time'), '10:00');
+  await until(() => document.querySelectorAll('#planner-grid .pl-row').length === rows().length + 1, 'planner');
+  seen.plannerRows = document.querySelectorAll('#planner-grid .pl-row').length;
+  seen.plannerVisible = !$('#planner').hidden;
+
+  const stored = (await api.storage.local.get('clockpane')).clockpane;
+  const active = stored.sets.find((s) => s.id === stored.active);
+  await api.storage.local.set({ clockpane: { ...stored, badge: active.clocks[0].id } });
+  let badge = '';
+  await until(async () => { badge = await api.action.getBadgeText({}); return /^\d{1,2}:\d{2}$/.test(badge); }, 'badge');
+  seen.badgeOk = true;
+
+  await api.storage.local.remove(licenseKey);
+  await until(() => $('#tier').textContent === '' && rows().length === 5, 'free again');
+  seen.freeRows = rows().length;
+  seen.hiddenNote = $('#hidden-note').textContent;
+  await until(async () => (await api.action.getBadgeText({})) === '', 'badge off');
+  seen.badgeOff = true;
+  seen.network = performance.getEntriesByType('resource').map((e) => e.name).filter((u) => !u.startsWith('moz-extension:'));
+  return seen;
+}

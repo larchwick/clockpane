@@ -1,13 +1,7 @@
 /**
- * Pure helpers for the future Pro activation with Gumroad license keys.
- * Copied from Extension Pro (src/pro/gumroad.ts at commit
- * ea8127dca553cb73ca981b7f05909e148034051f) and adapted to plain JS for a browser
- * extension. See proof/clockpane/CHANGES.md for the diff in intent.
+ * Pure helpers for Pro activation with Gumroad license keys.
  *
- * DISABLED: GUMROAD_PRODUCT_ID is null until a Gumroad product exists, and nothing in
- * extension/ imports this folder. The build never copies pro/ into dist/.
- *
- * When enabled, the check runs only after the user agrees on the consent screen and
+ * The check runs only after the user agrees on the consent screen and
  * presses Activate. It sends exactly three form fields to Gumroad: the public product id,
  * the license key the user pasted, and increment_uses_count.
  * Endpoint: POST https://api.gumroad.com/v2/licenses/verify (form encoded). Gumroad says the
@@ -19,11 +13,18 @@
 
 export const GUMROAD_VERIFY_URL = 'https://api.gumroad.com/v2/licenses/verify';
 
-/** Public Gumroad product id of Clockpane Pro. Null until the product exists. @type {string | null} */
-export const GUMROAD_PRODUCT_ID = null;
+/** Public Gumroad product id of Clockpane Pro. Not a secret: Gumroad shows it on the product page. @type {string | null} */
+export const GUMROAD_PRODUCT_ID = 'hr1yPpDQFFwAmvVhzXReuw==';
 
-/** Gumroad product page, opened only when the user asks. Null until the product exists. @type {string | null} */
-export const GUMROAD_PRODUCT_URL = null;
+/** Gumroad product page. A plain link the user may open, the extension never loads it. */
+export const GUMROAD_PRODUCT_URL = 'https://larchwick.gumroad.com/l/sysaii';
+
+/** Host permission requested at activation, optional in the manifest. */
+export const GUMROAD_ORIGIN = 'https://api.gumroad.com/*';
+
+/** Price facts shown in the extension and the listings. */
+export const PRO_PRICE = '7 USD, one-time';
+export const REFUND_DAYS = 14;
 
 /** One purchase may be activated in at most this many browsers. */
 export const MAX_MACHINES = 3;
@@ -114,7 +115,7 @@ export function parseVerifyResponse(httpStatus, body, request, now) {
   /** @type {CheckMode} */
   const mode = request.fields.increment_uses_count === 'true' ? 'activation' : 'recheck';
   if (mode === 'activation' && uses > MAX_MACHINES) {
-    return invalid('too-many-machines', `This key is already active in ${String(MAX_MACHINES)} browsers, the limit for one purchase. Contact support to move it.`);
+    return invalid('too-many-machines', `This key is already active in ${String(MAX_MACHINES)} browsers, the limit for one purchase. Write to support through the GitHub issues page to move it.`);
   }
   return {
     valid: true,

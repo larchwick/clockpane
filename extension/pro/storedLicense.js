@@ -1,7 +1,6 @@
 /**
  * Local storage format for a Pro license that passed the Gumroad check.
- * Copied from Extension Pro src/pro/storedLicense.ts (ea8127dca553cb73ca981b7f05909e148034051f)
- * and adapted: plain JS, kept in storage.local (never storage.sync). No buyer name or email is stored.
+ * Kept in storage.local (never storage.sync). No buyer name or email is stored.
  */
 
 export const STORED_LICENSE_VERSION = 1;

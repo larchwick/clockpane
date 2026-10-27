@@ -16,14 +16,39 @@ one look.
 - 12 or 24 hour time, reorder, rename, remove
 - Light and dark theme that follows the system
 
-These features stay free. A paid Pro edition may add more later, but nothing here will move
-behind it.
+These features stay free and will not move behind Pro.
+
+## Pro (optional, paid)
+
+Pro is a one-time purchase of 7 USD through Gumroad (https://larchwick.gumroad.com/l/sysaii),
+for up to 3 browsers, with a 14 day refund window. It adds:
+
+- More clocks: up to 500 per set instead of 5
+- Meeting planner: a 24 hour grid for the converter's date with each clock's working hours
+  (default 09:00 to 17:00, editable per clock), awake hours and the best hours for everyone.
+  Click an hour to load it into the converter
+- Named clock sets (up to 50), for example "Team" and "Family", switched from the popup
+- JSON export and import of all sets and settings (the license is never exported)
+- Toolbar badge with the time of one chosen clock, updated every minute
+
+Pro settings, the license and export and import are on the options page (gear button in the
+popup). If Pro is removed, nothing is deleted: the popup shows the first 5 clocks of the active
+set and the rest come back when Pro is turned on again.
 
 ## Privacy
 
-Clockpane asks for one permission, `storage`, to remember your clocks in this browser.
-It has no host permissions and no content scripts, never reads the pages you visit, and makes
-no network requests. No telemetry, analytics or ads. See [PRIVACY.md](PRIVACY.md).
+Clockpane asks for two permissions: `storage`, to remember your clocks in this browser, and
+`alarms`, to update the Pro toolbar badge once a minute. It has no content scripts and never
+reads the pages you visit. No telemetry, analytics or ads.
+
+The free features work fully offline. The only network request is the Pro license check, and
+only when you start it: you paste a key, read a consent screen and press Agree. Clockpane then
+asks for the optional permission to reach `https://api.gumroad.com` and sends one request to
+`https://api.gumroad.com/v2/licenses/verify` with the public product id, your license key and a
+flag saying whether this counts as a new browser. Nothing else is sent, and it never checks
+again on its own. "Re-check" on the options page repeats the check without using another of the
+3 activations. On Firefox this is declared as optional `authenticationInfo` data collection, so
+free users are never asked. See [PRIVACY.md](PRIVACY.md).
 
 ## Build from source
 
@@ -34,7 +59,7 @@ Exact versions used for every release:
 
 ```sh
 npm ci
-npm run build      # dist/firefox and dist/edge, then a check for network calls and local paths
+npm run build      # dist/firefox and dist/edge, then a check of permissions, network calls, URLs and local paths
 npm run package    # dist/zips/clockpane-firefox-<version>.zip and clockpane-edge-<version>.zip
 ```
 
@@ -47,8 +72,8 @@ Edge gets the same manifest without it.
 
 ```sh
 npm run typecheck  # JSDoc types checked by TypeScript, no output
-npm run lint       # ESLint (bans network APIs in the extension) and web-ext lint
-npm test           # unit tests (time zones and DST, storage, manifest, license module)
+npm run lint       # ESLint (bans network APIs except one fetch in pro/transport.js) and web-ext lint
+npm test           # unit tests (time zones and DST, storage, sets, planner, badge, manifest, license)
 npm run e2e        # Playwright: the built add-on in Firefox and the Edge build in Chromium
 npm run check      # all of the above
 ```
@@ -57,11 +82,16 @@ npm run check      # all of the above
 
 ## Layout
 
-- `extension/` the add-on: `popup.html`, `popup.js`, `popup.css`, `lib/time.js`, `lib/store.js`, icons
+- `extension/` the add-on
+  - `popup.html`, `popup.js`, `popup.css` the toolbar popup
+  - `options.html`, `options.js`, `options.css` license, sets, working hours, badge, export and import
+  - `background.js` the Pro toolbar badge
+  - `lib/time.js`, `lib/store.js`, `lib/planner.js`, `lib/badge.js` time zone math and saved state
+  - `pro/` the Gumroad license check. `pro/transport.js` is the only file that calls `fetch`
+  - icons
 - `scripts/` build, manifest per browser, release checks
-- `pro/` a license check for a future Pro edition. It is switched off, not wired in, and not part
-  of any build. See `pro/README.md`
-- `test/`, `e2e/` tests
+- `test/`, `e2e/` tests. The end-to-end tests turn Pro on by writing a license record to
+  storage, so they need no key and make no network request
 
 ## License
 

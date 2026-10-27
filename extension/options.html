@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clockpane settings</title>
+  <link rel="stylesheet" href="options.css">
+  <script type="module" src="options.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Clockpane settings</h1>
+
+    <section id="license" aria-labelledby="license-h">
+      <h2 id="license-h">Clockpane Pro</h2>
+      <p id="lic-status" role="status"></p>
+      <div id="lic-free">
+        <p>Pro adds unlimited clocks (the free edition holds 5), a meeting planner with working hours, named clock sets, JSON export and import, and the time of one clock on the toolbar button.
+          It costs <span id="price"></span>. One purchase works in up to 3 browsers or devices. Refunds within <span id="refund-days"></span> days through Gumroad.</p>
+        <p><a id="buy" target="_blank" rel="noopener noreferrer">Buy Pro on Gumroad</a></p>
+        <div class="row">
+          <label for="lic-key">License key</label>
+          <input id="lic-key" type="text" autocomplete="off" spellcheck="false" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX">
+          <button type="button" id="lic-activate">Activate</button>
+        </div>
+      </div>
+      <div id="lic-pro" hidden>
+        <p>License key <code id="lic-masked"></code>, last checked <span id="lic-checked"></span>.</p>
+        <div class="row">
+          <button type="button" id="lic-recheck">Re-check</button>
+          <button type="button" id="lic-remove">Remove from this browser</button>
+        </div>
+      </div>
+      <div id="consent" class="panel" hidden role="dialog" aria-labelledby="consent-h">
+        <h3 id="consent-h">Before the license check</h3>
+        <ul id="consent-text"></ul>
+        <div class="row">
+          <button type="button" id="consent-agree">Agree and check key</button>
+          <button type="button" id="consent-cancel">Cancel</button>
+        </div>
+      </div>
+      <p id="lic-msg" class="msg" role="alert"></p>
+    </section>
+
+    <p id="pro-note" class="note" hidden>The settings below are part of Pro. They turn on once a license is active.</p>
+
+    <fieldset id="pro" class="pro">
+      <section aria-labelledby="sets-h">
+        <h2 id="sets-h">Clock sets</h2>
+        <p class="hint">Keep separate lists, for example Team and Family. The popup shows the active set.</p>
+        <div class="row">
+          <label for="set-select">Active set</label>
+          <select id="set-select"></select>
+          <button type="button" id="set-delete">Delete set</button>
+        </div>
+        <div class="row">
+          <label for="set-name">Name</label>
+          <input id="set-name" type="text" maxlength="40" placeholder="Set name">
+          <button type="button" id="set-rename">Rename active set</button>
+          <button type="button" id="set-new">New empty set</button>
+          <button type="button" id="set-copy">Copy active set</button>
+        </div>
+      </section>
+
+      <section aria-labelledby="work-h">
+        <h2 id="work-h">Working hours</h2>
+        <p class="hint">Used by the meeting planner. Times are local to each clock. An end before the start means a night shift.</p>
+        <table id="work">
+          <thead><tr><th scope="col">Clock</th><th scope="col">Start</th><th scope="col">End</th></tr></thead>
+          <tbody id="work-rows"></tbody>
+        </table>
+      </section>
+
+      <section aria-labelledby="badge-h">
+        <h2 id="badge-h">Toolbar badge</h2>
+        <div class="row">
+          <label for="badge-clock">Show the time of</label>
+          <select id="badge-clock"></select>
+        </div>
+      </section>
+
+      <section aria-labelledby="data-h">
+        <h2 id="data-h">Export and import</h2>
+        <p class="hint">Export saves all sets, clocks and working hours to a JSON file. Import adds the sets from such a file next to the ones you have.</p>
+        <div class="row">
+          <button type="button" id="export">Export JSON</button>
+          <label class="file">Import JSON <input type="file" id="import" accept=".json,application/json"></label>
+        </div>
+      </section>
+    </fieldset>
+    <p id="msg" class="msg" role="status"></p>
+
+    <footer>
+      <p>Clockpane keeps everything in this browser. The only network request is the Gumroad license check above, and only after you agree to it. <a id="privacy" target="_blank" rel="noopener noreferrer">Privacy policy</a>. <a id="support" target="_blank" rel="noopener noreferrer">Support</a>.</p>
+    </footer>
+  </main>
+</body>
+</html>

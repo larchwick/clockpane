@@ -1,7 +1,6 @@
 /**
  * Runs one license check through an injected transport. Pure apart from the transport.
- * Copied from Extension Pro src/pro/activation.ts (ea8127dca553cb73ca981b7f05909e148034051f)
- * and adapted: plain JS, a consent gate, and a "not configured" result while the product id is null.
+ * It needs a recorded consent, and gives a "not configured" result if the product id is ever empty.
  */
 
 import { buildVerifyRequest, GUMROAD_PRODUCT_ID, parseVerifyResponse } from './gumroad.js';
