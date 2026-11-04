@@ -7,6 +7,10 @@ UTC offset and the difference from your own time. Pick a date and time in any of
 and every clock shows what that moment is there, so planning a call across time zones takes
 one look.
 
+## Install
+
+Firefox: [Clockpane on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/clockpane/)
+
 ## Free features
 
 - Up to 5 clocks, each with an optional label ("Tokyo office")
