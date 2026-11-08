@@ -1,6 +1,6 @@
 # Clockpane
 
-World clocks and a time zone converter in your browser toolbar. For Firefox and Microsoft Edge.
+World clocks and a time zone converter in your browser toolbar. For Firefox.
 
 Open the toolbar button to see the time in the places you care about, with the day, the
 UTC offset and the difference from your own time. Pick a date and time in any of your zones
