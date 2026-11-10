@@ -2,8 +2,8 @@
 // Pro (from a license stored in this browser): unlimited clocks, clock sets, meeting planner.
 
 import {
-  cityName, dayShift, diffLabel, formatDay, formatOffset, formatTime, localZone,
-  offsetMinutes, resolveZone, searchEntries, searchZones, zonedParts, zonedTimeToDate,
+  cityName, dayShift, describeNextTransition, diffLabel, formatDay, formatOffset, formatTime, localZone,
+  nextTransition, offsetMinutes, resolveZone, searchEntries, searchZones, wallTimeWarning, zonedParts, zonedTimeToDate,
 } from './lib/time.js';
 import {
   activeSet, addClock, FREE_CLOCK_LIMIT, hiddenClockCount, loadState, moveClock, removeClock, renameClock,
@@ -47,6 +47,8 @@ const els = {
   plannerTitle: $('planner-title'),
   plannerGrid: $('planner-grid'),
   plannerSummary: $('planner-summary'),
+  plannerDst: $('planner-dst'),
+  pinWarning: $('pin-warning'),
   pitch: $('pro-pitch'),
   pitchText: $('pro-pitch-text'),
   pitchOpen: $('pro-pitch-open'),
@@ -63,6 +65,34 @@ const shown = () => visibleClocks(state, tier);
 /** When set, the clocks show this instant instead of now. @type {Date | null} */
 let pinned = null;
 let editingId = '';
+/** Warning for the picked converter time when it hits a clock change. */
+let pinWarning = '';
+/** @type {Map<string, string>} */
+const dstCache = new Map();
+
+/**
+ * Next clock change text for a zone, cached per zone and hour because the clocks redraw every second.
+ * @param {string} zone
+ * @param {Date} at
+ */
+function dstText(zone, at) {
+  const key = `${zone}|${Math.floor(at.getTime() / 3600000)}`;
+  let text = dstCache.get(key);
+  if (text === undefined) {
+    text = describeNextTransition(zone, at);
+    if (dstCache.size > 200) dstCache.clear();
+    dstCache.set(key, text);
+  }
+  return text;
+}
+
+/**
+ * @param {{ year: number, month: number, day: number, hour: number, minute: number }} wall
+ * @param {string} zone
+ */
+function setPinWarning(wall, zone) {
+  pinWarning = wallTimeWarning(wall, zone, cityName(zone));
+}
 const here = localZone();
 
 /** @param {State} next */
@@ -117,8 +147,12 @@ function renderTimes() {
     const rel = shift === 0 ? '' : shift === 1 ? ' (tomorrow)' : shift === -1 ? ' (yesterday)' : ` (${shift > 0 ? '+' : ''}${shift}d)`;
     day.textContent = formatDay(at, zone) + rel;
     const offset = formatOffset(offsetMinutes(at, zone));
+    const dstEl = /** @type {HTMLElement} */ (li.querySelector('.dst'));
+    dstEl.textContent = dstText(zone, at) || 'No clock change in the next year';
     zoneEl.textContent = [zone, offset === zone ? '' : offset, diffLabel(at, zone, here)].filter(Boolean).join(' · ');
   }
+  els.pinWarning.textContent = pinned ? pinWarning : '';
+  els.pinWarning.hidden = !(pinned && pinWarning);
   if (pinned) {
     els.mode.textContent = 'Showing the time you picked. Press Now to go back.';
     els.mode.classList.add('converting');
@@ -230,6 +264,8 @@ function renderPlanner() {
     b.dataset.at = String(s.at.getTime());
     b.addEventListener('click', () => {
       pinned = new Date(s.at.getTime());
+      const w = zonedParts(pinned, zone);
+      setPinWarning(w, zone);
       fillConverterInputs();
       renderTimes();
       renderPlanner();
@@ -258,6 +294,19 @@ function renderPlanner() {
   });
   els.plannerGrid.replaceChildren(...rows);
   els.plannerSummary.textContent = summarize(plan, clocks.length);
+  /** @type {{ zone: string, name: string, forward: boolean }[]} */
+  const notes = [];
+  const dayStart = plan.slots[0]?.at ?? new Date();
+  const dayEnd = new Date(dayStart.getTime() + 25 * 3600000);
+  for (const c of [{ zone, name: cityName(zone) }, ...clocks.map((k) => ({ zone: k.zone, name: k.label || cityName(k.zone) }))]) {
+    if (notes.some((n) => n.zone === c.zone)) continue;
+    const tr = nextTransition(c.zone, dayStart);
+    if (tr && tr.at < dayEnd && zonedParts(tr.at, c.zone).day === d) notes.push({ zone: c.zone, name: c.name, forward: tr.after > tr.before });
+  }
+  const lines = notes.map((n) => `${n.name}: clocks go ${n.forward ? 'forward' : 'back'} on this day, so its hours shift partway through.`);
+  if (pinned && pinWarning) lines.unshift(pinWarning);
+  els.plannerDst.textContent = lines.join(' ');
+  els.plannerDst.hidden = lines.length === 0;
 }
 
 function openOptions() {
@@ -283,7 +332,9 @@ function onPick() {
   const [y, mo, d] = els.convDate.value.split('-').map(Number);
   const [h, mi] = els.convTime.value.split(':').map(Number);
   if ([y, mo, d, h, mi].some((n) => !Number.isFinite(n))) return;
-  pinned = zonedTimeToDate({ year: y, month: mo, day: d, hour: h, minute: mi }, zone);
+  const wall = { year: y, month: mo, day: d, hour: h, minute: mi };
+  pinned = zonedTimeToDate(wall, zone);
+  setPinWarning(wall, zone);
   renderTimes();
   renderPlanner();
 }

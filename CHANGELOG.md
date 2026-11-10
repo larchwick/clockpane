@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 (10 November 2026)
+
+- Each clock now shows the next date its zone changes clocks, and by how much. Zones without daylight saving say so.
+- When the converter time you pick falls in a spring forward gap or a fall back overlap, the popup says so.
+- The Pro meeting planner notes days on which a clock changes, and repeats the warning for the picked time.
+- No new permissions and no network requests. It uses the browser's own time zone data.
+
 ## 0.2.0 (27 October 2026)
 
 - Optional paid Pro, 7 USD one-time through Gumroad, for up to 3 browsers: up to 500 clocks per

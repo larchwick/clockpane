@@ -98,3 +98,25 @@ describe('zonedTimeToDate', () => {
     }
   });
 });
+
+import { describeNextTransition, nextTransition, wallTimeIssue, wallTimeWarning } from '../extension/lib/time.js';
+
+describe('clock changes', () => {
+  it('finds the next change from the zone data', () => {
+    const tr = nextTransition('Europe/Bucharest', new Date('2026-11-10T08:00:00Z'));
+    expect(tr?.at.toISOString()).toBe('2027-03-28T01:00:00.000Z');
+    expect(tr?.after - tr?.before).toBe(60);
+    expect(describeNextTransition('America/New_York', new Date('2026-11-10T08:00:00Z'), 'en-US')).toBe('Clocks go forward 1h on Sun, Mar 14');
+    expect(nextTransition('Asia/Tokyo', new Date('2026-11-10T08:00:00Z'))).toBeNull();
+    expect(describeNextTransition('UTC', new Date())).toBe('');
+  });
+  it('spots a spring forward gap and a fall back overlap', () => {
+    expect(wallTimeIssue({ year: 2027, month: 3, day: 14, hour: 2, minute: 30 }, 'America/New_York')).toBe('gap');
+    expect(wallTimeIssue({ year: 2027, month: 11, day: 7, hour: 1, minute: 30 }, 'America/New_York')).toBe('overlap');
+    expect(wallTimeIssue({ year: 2027, month: 3, day: 14, hour: 3, minute: 30 }, 'America/New_York')).toBeNull();
+    expect(wallTimeIssue({ year: 2026, month: 11, day: 10, hour: 12, minute: 0 }, 'Asia/Tokyo')).toBeNull();
+    expect(wallTimeWarning({ year: 2027, month: 3, day: 14, hour: 2, minute: 30 }, 'America/New_York', 'New York')).toContain('does not exist');
+    expect(wallTimeWarning({ year: 2027, month: 11, day: 7, hour: 1, minute: 30 }, 'America/New_York', 'New York')).toContain('twice');
+    expect(wallTimeWarning({ year: 2026, month: 11, day: 10, hour: 12, minute: 0 }, 'UTC', 'UTC')).toBe('');
+  });
+});

@@ -255,3 +255,86 @@ export function localZone() {
   const z = new Intl.DateTimeFormat().resolvedOptions().timeZone;
   return isValidZone(z) ? z : 'UTC';
 }
+
+/**
+ * The next clock change of a zone after an instant, from the browser's own time zone data.
+ * Looks up to 400 days ahead and returns null for zones without daylight saving.
+ * @param {string} zone
+ * @param {Date} from
+ * @returns {{ at: Date, before: number, after: number } | null}
+ */
+export function nextTransition(zone, from) {
+  const day = 86400000;
+  const start = Math.floor(from.getTime() / 60000) * 60000;
+  let lo = start;
+  let offLo = offsetMinutes(new Date(lo), zone);
+  for (let t = start + day; t <= start + 400 * day; t += day) {
+    const off = offsetMinutes(new Date(t), zone);
+    if (off !== offLo) {
+      let a = lo;
+      let b = t;
+      while (b - a > 60000) {
+        const mid = a + Math.floor((b - a) / 120000) * 60000 || a + 60000;
+        if (offsetMinutes(new Date(mid), zone) === offLo) a = mid;
+        else b = mid;
+      }
+      return { at: new Date(b), before: offLo, after: off };
+    }
+    lo = t;
+    offLo = off;
+  }
+  return null;
+}
+
+/**
+ * Short text for the next clock change of a zone, like "Clocks go forward 1h on Sun 29 Mar".
+ * Empty when the zone has no change in the next 400 days.
+ * @param {string} zone
+ * @param {Date} from
+ * @param {string} [locale]
+ */
+export function describeNextTransition(zone, from, locale) {
+  const tr = nextTransition(zone, from);
+  if (!tr) return '';
+  const delta = tr.after - tr.before;
+  const abs = Math.abs(delta);
+  const size = abs % 60 === 0 ? `${abs / 60}h` : `${abs} min`;
+  const when = new Intl.DateTimeFormat(locale, { timeZone: zone, weekday: 'short', day: 'numeric', month: 'short' }).format(tr.at);
+  return `Clocks go ${delta > 0 ? 'forward' : 'back'} ${size} on ${when}`;
+}
+
+/**
+ * Whether a wall clock time falls in a spring forward gap (the time does not exist),
+ * a fall back overlap (the time happens twice), or neither.
+ * @param {{ year: number, month: number, day: number, hour: number, minute: number }} wall
+ * @param {string} zone
+ * @returns {'gap' | 'overlap' | null}
+ */
+export function wallTimeIssue(wall, zone) {
+  const guess = Date.UTC(wall.year, wall.month - 1, wall.day, wall.hour, wall.minute);
+  const day = 86400000;
+  const offsets = [...new Set([-1, 0, 1].map((k) => offsetMinutes(new Date(guess + k * day), zone)))];
+  const hits = new Set(
+    offsets
+      .map((o) => guess - o * 60000)
+      .filter((t) => {
+        const p = zonedParts(new Date(t), zone);
+        return p.year === wall.year && p.month === wall.month && p.day === wall.day && p.hour === wall.hour && p.minute === wall.minute;
+      }),
+  );
+  if (hits.size === 0) return 'gap';
+  return hits.size > 1 ? 'overlap' : null;
+}
+
+/**
+ * Warning text for a converter time typed in a zone, or an empty string.
+ * @param {{ year: number, month: number, day: number, hour: number, minute: number }} wall
+ * @param {string} zone
+ * @param {string} cityLabel
+ */
+export function wallTimeWarning(wall, zone, cityLabel) {
+  const issue = wallTimeIssue(wall, zone);
+  if (issue === 'gap') return `${wall.hour < 10 ? '0' : ''}${wall.hour}:${String(wall.minute).padStart(2, '0')} does not exist in ${cityLabel} on that date because clocks skip forward. It is shown as the time right after the gap.`;
+  if (issue === 'overlap') return `${wall.hour < 10 ? '0' : ''}${wall.hour}:${String(wall.minute).padStart(2, '0')} happens twice in ${cityLabel} on that date because clocks go back. The first one is shown.`;
+  return '';
+}

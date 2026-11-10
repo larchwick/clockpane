@@ -29,7 +29,7 @@ ul { list-style: none; margin: 0 0 8px; padding: 0; }
 .clock { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 6px 2px; border-bottom: 1px solid var(--line); }
 .who { display: flex; flex-direction: column; min-width: 0; }
 .label { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.zone, .day { color: var(--muted); font-size: 12px; }
+.zone, .day, .dst { color: var(--muted); font-size: 12px; }
 .when { text-align: right; display: flex; flex-direction: column; }
 .time { font-size: 18px; font-variant-numeric: tabular-nums; }
 .tools { grid-column: 1 / -1; display: flex; gap: 4px; opacity: 0.55; }
@@ -55,3 +55,6 @@ form { display: flex; flex-wrap: wrap; gap: 6px; }
 .pl-head .pl-cell.picked { color: var(--warm); font-weight: 700; }
 #planner-summary { margin: 4px 0 0; }
 #pro-pitch p { margin: 0 0 6px; }
+
+.hint.warn { color: var(--warm); }
+.hint.warn[hidden] { display: none; }

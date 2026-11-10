@@ -31,6 +31,7 @@
       <button type="button" id="conv-now">Now</button>
     </div>
     <p id="mode" class="hint">Showing the current time.</p>
+    <p id="pin-warning" class="hint warn" role="status" hidden></p>
     <button type="button" id="planner-toggle" aria-expanded="false" aria-controls="planner">Meeting planner</button>
   </section>
 
@@ -38,6 +39,7 @@
     <p id="planner-title" class="hint"></p>
     <div id="planner-grid" role="table" aria-label="Working hours by hour of the day"></div>
     <p id="planner-summary"></p>
+    <p id="planner-dst" class="hint warn" hidden></p>
     <p class="hint">Green: working hours. Light: awake. Dark: night. Click an hour to show it in the clocks. Set working hours in Settings.</p>
   </section>
 
@@ -62,6 +64,7 @@
       <div class="who">
         <span class="label"></span>
         <span class="zone"></span>
+        <span class="dst"></span>
       </div>
       <div class="when">
         <span class="time"></span>

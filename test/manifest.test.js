@@ -22,7 +22,7 @@ describe('manifestFor', () => {
   it('asks for storage and alarms, Gumroad only as an optional host, no content scripts', () => {
     for (const t of /** @type {const} */ (['firefox', 'edge'])) {
       const m = manifestFor(base, t);
-      expect(m.version).toBe('0.2.0');
+      expect(m.version).toBe('0.2.1');
       expect(m.permissions).toEqual(['storage', 'alarms']);
       expect(m.optional_host_permissions).toEqual(['https://api.gumroad.com/*']);
       expect(m.host_permissions).toBeUndefined();
