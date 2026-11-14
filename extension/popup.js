@@ -1,12 +1,12 @@
 // Popup controller. Reads and writes storage.local only. No network calls.
-// Pro (from a license stored in this browser): unlimited clocks, clock sets, meeting planner.
+// Pro (from a license stored in this browser): up to 500 clocks per set, clock sets, meeting planner.
 
 import {
   cityName, dayShift, describeNextTransition, diffLabel, formatDay, formatOffset, formatTime, localZone,
   nextTransition, offsetMinutes, resolveZone, searchEntries, searchZones, wallTimeWarning, zonedParts, zonedTimeToDate,
 } from './lib/time.js';
 import {
-  activeSet, addClock, FREE_CLOCK_LIMIT, hiddenClockCount, loadState, moveClock, removeClock, renameClock,
+  activeSet, addClock, FREE_CLOCK_LIMIT, hiddenClockCount, loadState, MAX_CLOCKS_PER_SET, moveClock, removeClock, renameClock,
   saveState, setHour12, STORAGE_KEY, switchSet, visibleClocks,
 } from './lib/store.js';
 import { planDay, summarize } from './lib/planner.js';
@@ -313,7 +313,7 @@ function render() {
   const hidden = hiddenClockCount(state, tier);
   els.hiddenNote.hidden = hidden === 0;
   els.hiddenNote.textContent = hidden === 0 ? '' : `${hidden} more saved ${hidden === 1 ? 'clock is' : 'clocks are'} kept and come back with Pro.`;
-  if (full) showPitch(`The free edition holds ${FREE_CLOCK_LIMIT} clocks. Pro (${PRO_PRICE}) has unlimited clocks, clock sets, a meeting planner, export and a toolbar badge.`);
+  if (full) showPitch(`The free edition holds ${FREE_CLOCK_LIMIT} clocks. Pro (${PRO_PRICE}) has up to ${MAX_CLOCKS_PER_SET} clocks per set, clock sets, a meeting planner, export and a toolbar badge.`);
   else if (!(tier === 'free' && plannerOpen)) els.pitch.hidden = true;
   renderZoneSelect();
   renderTimes();

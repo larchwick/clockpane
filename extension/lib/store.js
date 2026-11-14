@@ -173,7 +173,7 @@ export function addClock(state, zone, label = '', tier = 'free') {
   if (activeSet(state).clocks.length >= limit) {
     const error = tier === 'pro'
       ? `This set is full (${limit} clocks).`
-      : `The free edition holds ${FREE_CLOCK_LIMIT} clocks. Remove one to add another, or get Pro for unlimited clocks.`;
+      : `The free edition holds ${FREE_CLOCK_LIMIT} clocks. Remove one to add another, or get Pro for up to ${MAX_CLOCKS_PER_SET} clocks per set.`;
     return { ok: false, state, error };
   }
   return { ok: true, state: withClocks(state, (clocks) => [...clocks, { id: nextId(clocks, 'c'), zone, label: cleanText(label, MAX_LABEL_LENGTH), work: { ...DEFAULT_WORK } }]) };

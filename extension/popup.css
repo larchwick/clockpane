@@ -18,6 +18,7 @@ h1 { font-size: 15px; margin: 0; color: var(--accent); }
 .toggle { color: var(--muted); }
 section, form { border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
 .row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.row[hidden] { display: none; }
 .row label { color: var(--muted); }
 select, input, button { font: inherit; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; }
 select { flex: 1; min-width: 0; }

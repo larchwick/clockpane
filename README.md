@@ -14,7 +14,7 @@ Firefox: [Clockpane on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox
 ## Free features
 
 - Up to 5 clocks, each with an optional label ("Tokyo office")
-- Search by city or by time zone id (Tokyo, Cluj-Napoca, Asia/Kolkata)
+- Search by city or by time zone id (Tokyo, Paris, Asia/Kolkata)
 - Converter: pick a date and time in one zone, all clocks follow. "Now" goes back to live time
 - Copy times: one button copies the converter time, or the current time when live, as plain text, one line per clock with its label or city, weekday and date, time, and UTC offset
 - Correct daylight saving time everywhere, from the browser's own time zone data

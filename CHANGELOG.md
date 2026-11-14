@@ -5,6 +5,7 @@
 - A Copy times button puts the converter time (or the current time, when live) on the clipboard as plain text, one line per clock with its label or city, weekday and date, time, and UTC offset.
 - Pro can also download a calendar file (.ics) for that time, one meeting one hour long, with those same lines in the description. The download uses a local file link, with no extra permission.
 - In Pro, when the picked time falls in a spring forward gap or a fall back overlap for any clock, the existing daylight saving warning is included in the copied text and in the calendar file. The same download is available from the meeting planner.
+- Pro wording now says up to 500 clocks per set, not unlimited. Extra city-name search aliases cover a wider world set.
 - No new permissions and no network requests. The 0.2.1 daylight saving warnings and next clock change text are unchanged.
 
 

@@ -31,8 +31,9 @@ const bannedEverywhere = [
   [/\beval\s*\(/, 'eval'],
   [/new\s+Function\s*\(/, 'new Function'],
   [/importScripts/, 'importScripts'],
-  [/\/home\/box/, 'local path /home/box'],
-  [/\/workspace/, 'local path /workspace'],
+  [/\/home\//, 'absolute home path'],
+  [/\/Users\//, 'absolute user profile path'],
+  [/[A-Za-z]:[\\/]+Users[\\/]/, 'absolute user profile path'],
 ];
 /** @type {string[]} */
 const problems = [];

@@ -21,7 +21,9 @@ describe('zones', () => {
     expect(resolveZone('europe/bucharest')?.zone).toBe('Europe/Bucharest');
     expect(resolveZone('tokyo')?.zone).toBe('Asia/Tokyo');
     expect(resolveZone('São Paulo')?.zone).toBe('America/Sao_Paulo');
-    expect(resolveZone('Cluj-Napoca')?.zone).toBe('Europe/Bucharest');
+    expect(resolveZone('Cape Town')?.zone).toBe('Africa/Johannesburg');
+    expect(resolveZone('Rio de Janeiro')?.zone).toBe('America/Sao_Paulo');
+    expect(resolveZone('Chennai')?.zone).toBe('Asia/Kolkata');
     expect(resolveZone('Asia/Kolkata')?.zone).toBe('Asia/Kolkata');
     expect(resolveZone('Kolkata')?.zone).toBe('Asia/Kolkata');
     expect(resolveZone('nowhere at all')).toBeNull();

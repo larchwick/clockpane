@@ -15,7 +15,7 @@ Clockpane shows the time in the places you care about, right from the toolbar. E
 <b>Free, and staying free</b>
 <ul>
 <li>Up to 5 clocks, each with an optional label ("Tokyo office")</li>
-<li>Search by city or time zone id (Tokyo, Cluj-Napoca, Asia/Kolkata)</li>
+<li>Search by city or time zone id (Tokyo, Paris, Asia/Kolkata)</li>
 <li>Converter for any date and time, "Now" goes back to live time</li>
 <li>Copy times: one button copies the converter time, or the current time when live, as plain text, one line per clock with its label or city, weekday and date, time, and UTC offset</li>
 <li>Correct daylight saving time everywhere, from the browser's own time zone data</li>
