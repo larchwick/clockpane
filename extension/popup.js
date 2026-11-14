@@ -10,6 +10,7 @@ import {
   saveState, setHour12, STORAGE_KEY, switchSet, visibleClocks,
 } from './lib/store.js';
 import { planDay, summarize } from './lib/planner.js';
+import { buildMeetingIcs, dstWarningsForShare, formatShareText } from './lib/share.js';
 import { readTier } from './pro/license.js';
 import { LICENSE_STORAGE_KEY } from './pro/storedLicense.js';
 import { PRO_PRICE } from './pro/license.js';
@@ -49,6 +50,9 @@ const els = {
   plannerSummary: $('planner-summary'),
   plannerDst: $('planner-dst'),
   pinWarning: $('pin-warning'),
+  shareCopy: $('share-copy'),
+  shareIcs: $('share-ics'),
+  plannerIcs: $('planner-ics'),
   pitch: $('pro-pitch'),
   pitchText: $('pro-pitch-text'),
   pitchOpen: $('pro-pitch-open'),
@@ -109,6 +113,96 @@ function say(text) {
 
 /** @param {number} n */
 const pad = (n) => String(n).padStart(2, '0');
+
+/** Typed wall time from the converter inputs, or null if they are incomplete. */
+function converterWall() {
+  const [y, mo, d] = els.convDate.value.split('-').map(Number);
+  const [h, mi] = els.convTime.value.split(':').map(Number);
+  if ([y, mo, d, h, mi].some((n) => !Number.isFinite(n))) return null;
+  return { year: y, month: mo, day: d, hour: h, minute: mi };
+}
+
+/** Instant the share actions use: the picked time, or now when live. */
+function shareInstant() {
+  return pinned ?? new Date();
+}
+
+/**
+ * Text for every visible clock in the active set.
+ * Pro adds the existing DST warning when the time hits a gap or overlap.
+ */
+function shareText() {
+  const at = shareInstant();
+  const clocks = shown();
+  const wall = converterWall();
+  const sourceZone = els.convZone.value || here;
+  const warnings = tier === 'pro'
+    ? dstWarningsForShare({
+      clocks,
+      at,
+      sourceWall: pinned && wall ? wall : undefined,
+      sourceZone: pinned && wall ? sourceZone : undefined,
+    })
+    : [];
+  return formatShareText({ clocks, at, hour12: state.hour12, warnings });
+}
+
+let copiedTimer = 0;
+function confirmCopied() {
+  const btn = els.shareCopy;
+  btn.textContent = 'Copied';
+  say('Copied');
+  window.clearTimeout(copiedTimer);
+  copiedTimer = window.setTimeout(() => {
+    btn.textContent = 'Copy times';
+    if (els.message.textContent === 'Copied') say('');
+  }, 1500);
+}
+
+async function onCopyTimes() {
+  try {
+    await navigator.clipboard.writeText(shareText());
+    confirmCopied();
+  } catch {
+    say('Could not copy.');
+  }
+}
+
+function onDownloadIcs() {
+  const at = shareInstant();
+  const clocks = shown();
+  const wall = converterWall();
+  const sourceZone = els.convZone.value || here;
+  const warnings = dstWarningsForShare({
+    clocks,
+    at,
+    sourceWall: pinned && wall ? wall : undefined,
+    sourceZone: pinned && wall ? sourceZone : undefined,
+  });
+  const ics = buildMeetingIcs({
+    clocks,
+    at,
+    hour12: state.hour12,
+    warnings,
+    uid: `clockpane-${Date.now()}@larchwick`,
+    dtstamp: new Date(),
+  });
+  const blob = new Blob([ics], { type: 'text/calendar' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `clockpane-meeting-${formatIcsName(at)}.ics`;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** @param {Date} at */
+function formatIcsName(at) {
+  const p = (/** @type {number} */ n) => String(n).padStart(2, '0');
+  return `${at.getUTCFullYear()}${p(at.getUTCMonth() + 1)}${p(at.getUTCDate())}T${p(at.getUTCHours())}${p(at.getUTCMinutes())}Z`;
+}
 
 function fillConverterInputs() {
   const zone = els.convZone.value || here;
@@ -205,6 +299,7 @@ function render() {
   els.addZone.placeholder = full ? `${FREE_CLOCK_LIMIT} of ${FREE_CLOCK_LIMIT} clocks in use` : 'Add a city or time zone';
   els.tier.textContent = tier === 'pro' ? 'Pro' : '';
   els.tier.classList.toggle('pro', tier === 'pro');
+  els.shareIcs.hidden = tier !== 'pro';
   els.setRow.hidden = tier !== 'pro';
   if (tier === 'pro') {
     els.setSelect.replaceChildren(...state.sets.map((s) => {
@@ -354,6 +449,9 @@ async function main() {
   els.convTime.addEventListener('change', onPick);
   els.convZone.addEventListener('change', () => { if (pinned) onPick(); else { fillConverterInputs(); renderPlanner(); } });
   els.convNow.addEventListener('click', () => { pinned = null; fillConverterInputs(); renderTimes(); renderPlanner(); });
+  els.shareCopy.addEventListener('click', () => { void onCopyTimes(); });
+  els.shareIcs.addEventListener('click', onDownloadIcs);
+  els.plannerIcs.addEventListener('click', onDownloadIcs);
   els.openOptions.addEventListener('click', openOptions);
   els.pitchOpen.addEventListener('click', openOptions);
   els.setSelect.addEventListener('change', () => { void commit(switchSet(state, els.setSelect.value).state); });

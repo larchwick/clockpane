@@ -16,7 +16,9 @@ Firefox: [Clockpane on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox
 - Up to 5 clocks, each with an optional label ("Tokyo office")
 - Search by city or by time zone id (Tokyo, Cluj-Napoca, Asia/Kolkata)
 - Converter: pick a date and time in one zone, all clocks follow. "Now" goes back to live time
+- Copy times: one button copies the converter time, or the current time when live, as plain text, one line per clock with its label or city, weekday and date, time, and UTC offset
 - Correct daylight saving time everywhere, from the browser's own time zone data
+- Each clock shows the next date its zone changes clocks. When a picked time falls in a spring forward gap or a fall back overlap, the popup says so
 - 12 or 24 hour time, reorder, rename, remove
 - Light and dark theme that follows the system
 
@@ -31,6 +33,9 @@ for up to 3 browsers, with a 14 day refund window. It adds:
 - Meeting planner: a 24 hour grid for the converter's date with each clock's working hours
   (default 09:00 to 17:00, editable per clock), awake hours and the best hours for everyone.
   Click an hour to load it into the converter
+- Download a calendar file (.ics) for the time you picked, one meeting one hour long, also
+  from the planner. If that time falls in a clock change gap or overlap, the warning is
+  included in the copied text and in the file
 - Named clock sets (up to 50), for example "Team" and "Family", switched from the popup
 - JSON export and import of all sets and settings (the license is never exported)
 - Toolbar badge with the time of one chosen clock, updated every minute
@@ -77,7 +82,7 @@ Edge gets the same manifest without it.
 ```sh
 npm run typecheck  # JSDoc types checked by TypeScript, no output
 npm run lint       # ESLint (bans network APIs except one fetch in pro/transport.js) and web-ext lint
-npm test           # unit tests (time zones and DST, storage, sets, planner, badge, manifest, license)
+npm test           # unit tests (time zones and DST, share text and calendar files, storage, sets, planner, badge, manifest, license)
 npm run e2e        # Playwright: the built add-on in Firefox and the Edge build in Chromium
 npm run check      # all of the above
 ```

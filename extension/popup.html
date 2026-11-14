@@ -32,6 +32,10 @@
     </div>
     <p id="mode" class="hint">Showing the current time.</p>
     <p id="pin-warning" class="hint warn" role="status" hidden></p>
+    <div id="share-row" class="row">
+      <button type="button" id="share-copy">Copy times</button>
+      <button type="button" id="share-ics" hidden>Download .ics</button>
+    </div>
     <button type="button" id="planner-toggle" aria-expanded="false" aria-controls="planner">Meeting planner</button>
   </section>
 
@@ -40,6 +44,7 @@
     <div id="planner-grid" role="table" aria-label="Working hours by hour of the day"></div>
     <p id="planner-summary"></p>
     <p id="planner-dst" class="hint warn" hidden></p>
+    <button type="button" id="planner-ics">Download .ics</button>
     <p class="hint">Green: working hours. Light: awake. Dark: night. Click an hour to show it in the clocks. Set working hours in Settings.</p>
   </section>
 

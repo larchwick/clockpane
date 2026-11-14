@@ -1,4 +1,4 @@
-# Notes for the AMO reviewer, Clockpane 0.2.0
+# Notes for the AMO reviewer, Clockpane 0.2.2
 
 ## Source and build
 
@@ -11,7 +11,7 @@
 
   ```sh
   npm ci
-  npm run package   # dist/zips/clockpane-firefox-0.2.0.zip
+  npm run package   # dist/zips/clockpane-firefox-0.2.2.zip
   ```
 
   `scripts/build.mjs` copies `extension/` to `dist/firefox` and writes the manifest with

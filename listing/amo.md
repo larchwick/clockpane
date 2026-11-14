@@ -1,4 +1,4 @@
-# Clockpane, AMO listing text (0.2.0)
+# Clockpane, AMO listing text (0.2.2)
 
 ## Name
 
@@ -17,7 +17,9 @@ Clockpane shows the time in the places you care about, right from the toolbar. E
 <li>Up to 5 clocks, each with an optional label ("Tokyo office")</li>
 <li>Search by city or time zone id (Tokyo, Cluj-Napoca, Asia/Kolkata)</li>
 <li>Converter for any date and time, "Now" goes back to live time</li>
+<li>Copy times: one button copies the converter time, or the current time when live, as plain text, one line per clock with its label or city, weekday and date, time, and UTC offset</li>
 <li>Correct daylight saving time everywhere, from the browser's own time zone data</li>
+<li>Each clock shows the next date its zone changes clocks. When a picked time falls in a spring forward gap or a fall back overlap, the popup says so</li>
 <li>12 or 24 hour time, reorder, rename, remove, light and dark theme</li>
 </ul>
 
@@ -26,6 +28,7 @@ Pro is a one-time purchase of 7 USD through Gumroad, for up to 3 browsers, with 
 <ul>
 <li>Up to 500 clocks per set instead of 5</li>
 <li>Meeting planner: a 24 hour grid with each clock's working hours and the best hours for everyone</li>
+<li>Download a calendar file (.ics) for the time you picked, one meeting one hour long, also from the planner. If that time falls in a clock change gap or overlap, the warning is included in the copied text and in the file</li>
 <li>Named clock sets, for example "Team" and "Family"</li>
 <li>JSON export and import of your clocks and settings</li>
 <li>Toolbar badge with the time of one chosen clock</li>
@@ -72,6 +75,14 @@ MIT License
 ## Privacy policy
 
 Paste the text of PRIVACY.md (https://github.com/larchwick/clockpane/blob/main/PRIVACY.md) into the AMO privacy policy field.
+
+## Version notes (0.2.2)
+
+Copy times puts the converter time, or the current time when live, on the clipboard as plain text, one line per clock with its label or city, weekday and date, time, and UTC offset. Pro can also download a calendar file (.ics) for that time, one meeting one hour long, with those lines in the description, from the popup and from the meeting planner. In Pro, when the picked time falls in a spring forward gap or a fall back overlap for any clock, the existing daylight saving warning is included in the copied text and in the file. No new permissions and no network requests. The 0.2.1 daylight saving warnings and next clock change text are unchanged.
+
+## Version notes (0.2.1)
+
+Each clock now shows the next date its zone changes clocks, and by how much. When the converter time you pick falls in a spring forward gap or a fall back overlap, the popup says so. The Pro meeting planner notes days on which a clock changes, and repeats the warning for the picked time. No new permissions and no network requests.
 
 ## Version notes (0.2.0)
 

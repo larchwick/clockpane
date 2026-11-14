@@ -58,3 +58,7 @@ form { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .hint.warn { color: var(--warm); }
 .hint.warn[hidden] { display: none; }
+
+#share-row { margin: 4px 0; }
+#share-row button, #planner-ics { margin-right: 4px; }
+#planner-ics { margin: 4px 0; }
